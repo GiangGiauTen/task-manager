@@ -1,10 +1,10 @@
-'use client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRef } from 'react';
-import { useForm } from 'react-hook-form';
-import { createWorkspaceSchema } from '../schemas';
-import { z } from 'zod';
-import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRef } from "react";
+import { useForm } from "react-hook-form";
+import { createProjectSchema } from "../schemas";
+import { z } from "zod";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -12,55 +12,59 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { DottedSeparator } from '@/components/dotted-separator';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { useCreateWorkspace } from '../api/use-create-workspace';
-import Image from 'next/image';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ImageIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/form";
+import { DottedSeparator } from "@/components/dotted-separator";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useCreateProject } from "../api/use-create-project";
+import Image from "next/image";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ImageIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 
-interface CreateWorkspaceFormProps {
+interface CreateProjectFormProps {
   onCancel?: () => void;
 }
 
-export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
+export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
+  const workspaceId = useWorkspaceId();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const router = useRouter();
-  const { mutate, isPending } = useCreateWorkspace();
+  const { mutate, isPending } = useCreateProject();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<z.infer<typeof createWorkspaceSchema>>({
-    resolver: zodResolver(createWorkspaceSchema),
+  const form = useForm<z.infer<typeof createProjectSchema>>({
+    resolver: zodResolver(createProjectSchema.omit({ workspaceId: true })),
     defaultValues: {
-      name: '',
+      name: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
+  const onSubmit = (values: z.infer<typeof createProjectSchema>) => {
     const finalValues = {
       ...values,
-      image: values.image instanceof File ? values.image : '',
+      workspaceId,
+      image: values.image instanceof File ? values.image : "",
     };
 
     mutate(
       { form: finalValues },
       {
-        onSuccess: ({ data }) => {
+        onSuccess: ({data}) => {
           form.reset();
-          router.push(`/workspaces/${data.$id}`);
+          router.push(`/workspaces/${workspaceId}/projects/${data.$id}`)
         },
-      },
+      }
     );
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      form.setValue('image', file);
+      form.setValue("image", file);
     }
   };
 
@@ -68,9 +72,10 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
     <Card className="w-full h-full border-none shadow-none">
       <CardHeader className="flex p-7">
         <CardTitle className="text-xl font-bold">
-          Create a new workspace
+          Create a new project
         </CardTitle>
       </CardHeader>
+
       <div className="px-7">
         <DottedSeparator />
       </div>
@@ -84,9 +89,9 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Workspace Name</FormLabel>
+                    <FormLabel>Project Name</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter workspace name" />
+                      <Input {...field} placeholder="Enter project name" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -120,7 +125,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                         </Avatar>
                       )}
                       <div className="flex flex-col">
-                        <p className="text-sm">Workspace Icon</p>
+                        <p className="text-sm">Project Icon</p>
                         <p className="text-sm text-muted-foreground">
                           JPG, PNG, SVG, JPEG, max 1mb
                         </p>
@@ -137,25 +142,27 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                           <Button
                             type="button"
                             disabled={isPending}
-                            variant={'destructive'}
-                            size={'xs'}
+                            variant={"destructive"}
+                            size={"xs"}
                             className="w-fit mt-2"
                             onClick={() => {
                               field.onChange(null);
                               if (inputRef.current) {
-                                inputRef.current.value = '';
+                                inputRef.current.value = "";
                               }
-                            }}>
+                            }}
+                          >
                             Remove Image
                           </Button>
                         ) : (
                           <Button
                             type="button"
                             disabled={isPending}
-                            variant={'teritary'}
-                            size={'xs'}
+                            variant={"teritary"}
+                            size={"xs"}
                             className="w-fit mt-2"
-                            onClick={() => inputRef.current?.click()}>
+                            onClick={() => inputRef.current?.click()}
+                          >
                             Upload Image
                           </Button>
                         )}
@@ -170,16 +177,17 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
             <div className="flex items-center justify-between">
               <Button
                 type="button"
-                size={'lg'}
-                variant={'secondary'}
+                size={"lg"}
+                variant={"secondary"}
                 onClick={onCancel}
                 disabled={isPending}
-                className={cn(!onCancel && 'invisible')}>
+                className={cn(!onCancel && "invisible")}
+              >
                 Cancel
               </Button>
 
-              <Button type="submit" size={'lg'} disabled={isPending}>
-                Create Workspace
+              <Button type="submit" size={"lg"} disabled={isPending}>
+                Create Project
               </Button>
             </div>
           </form>
