@@ -3,15 +3,18 @@ import { InferRequestType, InferResponseType } from 'hono';
 import { toast } from 'sonner';
 import { client } from '@/lib/rpc';
 
-type ResponseType = InferResponseType<(typeof client.api.tasks)['$post'], 200>;
-type RequestType = InferRequestType<(typeof client.api.tasks)['$post']>;
+type ResponseType = InferResponseType<
+  (typeof client.api.task_comment)['$post'],
+  200
+>;
+type RequestType = InferRequestType<(typeof client.api.task_comment)['$post']>;
 
-export const useCreateTask = () => {
+export const useCreateComment = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation<ResponseType, Error, RequestType>({
     mutationFn: async ({ json }) => {
-      const response = await client.api.tasks['$post']({ json });
+      const response = await client.api.task_comment['$post']({ json });
 
       if (!response.ok) {
         throw new Error('Failed to create task!');
@@ -21,10 +24,7 @@ export const useCreateTask = () => {
 
     onSuccess: () => {
       toast.success('Task created!');
-      console.log('client.api', client.api);
-      queryClient.invalidateQueries({ queryKey: ['project-analytics'] });
-      queryClient.invalidateQueries({ queryKey: ['workspace-analytics'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['task-comment'] });
     },
     onError: () => {
       toast.error('Failed to create task!');
