@@ -58,7 +58,22 @@ export const TaskViewSwitcher = ({hideProjectFilter}: TaskViewSwitcherProps) => 
     },
     [bulkUpdate]
   );
-  
+    // Hàm xử lý cập nhật ngày task trong Calendar
+  const onDateChange = useCallback(
+    (id: string, newDate: Date) => {
+      bulkUpdate({
+        json: {
+          tasks: [
+            {
+              $id: id,
+              dueDate: newDate.toISOString(), // Cập nhật ngày mới cho task
+            },
+          ],
+        },
+      });
+    },
+    [bulkUpdate]
+  );
 
   return (
     <Tabs
@@ -104,7 +119,7 @@ export const TaskViewSwitcher = ({hideProjectFilter}: TaskViewSwitcherProps) => 
             </TabsContent>
 
             <TabsContent value="calendar" className="mt-0 h-full pb-0">
-            <DataCalendar data={tasks?.documents ?? []} />
+            <DataCalendar data={tasks?.documents ?? []}  onDateChange={onDateChange} />
             </TabsContent>
           </>
         )}
