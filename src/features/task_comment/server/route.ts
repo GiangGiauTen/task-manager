@@ -44,36 +44,7 @@ const app = new Hono()
       return c.json({ data: { ...comments, member } });
     },
   )
-  // .get('/:commentId', sessionMiddleware, async c => {
-  //   const databases = c.get('databases');
-  //   const user = c.get('user');
-  //   const { commentId } = c.req.param();
 
-  //   // Truy vấn comment từ database
-  //   const comment = await databases.getDocument<TaskComment>(
-  //     DATABASE_ID,
-  //     COMMENTS_ID,
-  //     commentId,
-  //   );
-
-  //   // Kiểm tra xem comment có tồn tại và người dùng có quyền truy cập không
-  //   const task = await databases.getDocument(
-  //     DATABASE_ID,
-  //     TASKS_ID,
-  //     comment.taskId,
-  //   );
-  //   const member = await getMember({
-  //     databases,
-  //     workspaceId: task.workspaceId,
-  //     userId: user.$id,
-  //   });
-
-  //   if (!member) {
-  //     return c.json({ error: 'Unauthorized' }, 401);
-  //   }
-
-  //   return c.json({ data: { ...comment, user } });
-  // })
   // Tạo mới comment cho một task
   .post(
     '/',
@@ -117,47 +88,47 @@ const app = new Hono()
       return c.json({ data: comment });
     },
   )
+  .patch(
+    '/:commentId',
+    sessionMiddleware,
+    zValidator(
+      'json',
+      z.object({
+        content: z.string().min(1, 'Content is required'),
+        taskId: z.string().min(1, 'Task ID is required'),
+      }),
+    ),
+    async c => {
+      const databases = c.get('databases');
+      const user = c.get('user');
+      const { content, taskId } = c.req.valid('json');
+      const { commentId } = c.req.param();
 
-  // Cập nhật một comment
-  // app.patch(
-  //   "/",
-  //   sessionMiddleware,
-  //   zValidator(
-  //     "json",
-  //     updateCommentSchema.extend({
-  //       commentId: z.string().min(1, "Comment ID is required"),
-  //       taskId: z.string().min(1, "Task ID is required"),
-  //     })
-  //   ),
-  //   async (c) => {
-  //     const databases = c.get("databases");
-  //     const user = c.get("user");
-  //     const { taskId, commentId, content } = c.req.valid("json");
+      // Lấy thông tin comment
+      const comment = await databases.getDocument<TaskComment>(
+        DATABASE_ID,
+        COMMENTS_ID,
+        commentId,
+      );
 
-  //     const comment = await databases.getDocument<TaskComment>(
-  //       DATABASE_ID,
-  //       COMMENTS_ID,
-  //       commentId
-  //     );
+      // Kiểm tra quyền sở hữu comment
+      if (comment.taskId !== taskId || comment.userId !== user.$id) {
+        return c.json({ error: 'Unauthorized' }, 401);
+      }
 
-  //     if (comment.taskId !== taskId || comment.userId !== user.$id) {
-  //       return c.json({ error: "Unauthorized" }, 401);
-  //     }
+      // Cập nhật nội dung comment
+      const updatedComment = await databases.updateDocument(
+        DATABASE_ID,
+        COMMENTS_ID,
+        commentId,
+        {
+          content,
+        },
+      );
 
-  //     const updatedComment = await databases.updateDocument(
-  //       DATABASE_ID,
-  //       COMMENTS_ID,
-  //       commentId,
-  //       {
-  //         content,
-  //         $updatedAt: new Date().toISOString(),
-  //       }
-  //     );
-
-  //     return c.json({ data: updatedComment });
-  //   }
-  // );
-
+      return c.json({ data: updatedComment });
+    },
+  )
   // Xóa một comment
   .delete(
     '/:commentId',
@@ -165,28 +136,34 @@ const app = new Hono()
     zValidator(
       'json',
       z.object({
-        commentId: z.string().min(1, 'Comment ID is required'),
         taskId: z.string().min(1, 'Task ID is required'),
       }),
     ),
     async c => {
       const databases = c.get('databases');
       const user = c.get('user');
-      const { taskId, commentId } = c.req.valid('json');
+      const { taskId } = c.req.valid('json');
+      const { commentId } = c.req.param();
 
+      // Lấy thông tin comment
       const comment = await databases.getDocument<TaskComment>(
         DATABASE_ID,
         COMMENTS_ID,
         commentId,
       );
 
+      // Kiểm tra quyền sở hữu comment
       if (comment.taskId !== taskId || comment.userId !== user.$id) {
         return c.json({ error: 'Unauthorized' }, 401);
       }
 
+      // Xóa comment
       await databases.deleteDocument(DATABASE_ID, COMMENTS_ID, commentId);
 
-      return c.json({ message: 'Comment deleted successfully' });
+      return c.json({
+        data: { $id: commentId },
+        message: 'Comment deleted successfully',
+      });
     },
   );
 

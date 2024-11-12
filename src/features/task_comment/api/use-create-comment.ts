@@ -17,7 +17,7 @@ export const useCreateComment = () => {
       const response = await client.api.task_comment['$post']({ json });
 
       if (!response.ok) {
-        throw new Error('Failed to create task!');
+        throw new Error('Failed to create comment!');
       }
       return await response.json();
     },
@@ -27,7 +27,7 @@ export const useCreateComment = () => {
       queryClient.invalidateQueries({ queryKey: ['task-comment'] });
     },
     onError: () => {
-      toast.error('Failed to create task!');
+      toast.error('Failed to create comment!');
     },
   });
 
