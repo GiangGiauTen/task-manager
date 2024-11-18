@@ -1,9 +1,9 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { useGetMembers } from "@/features/members/api/use-get-members";
-import { useGetProjects } from "@/features/projects/api/use-get-projects";
-import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
-import { Loader } from "lucide-react";
-import { CreateTaskForm } from "./create-task-form";
+import { Card, CardContent } from '@/components/ui/card';
+import { useGetMembers } from '@/features/members/api/use-get-members';
+import { useGetProjects } from '@/features/projects/api/use-get-projects';
+import { useWorkspaceId } from '@/features/workspaces/hooks/use-workspace-id';
+import { Loader } from 'lucide-react';
+import { CreateTaskForm } from './create-task-form';
 
 interface CreateTaskFormWrapperProps {
   onCancel: () => void;
@@ -20,17 +20,17 @@ export const CreateTaskFormWrapper = ({
     workspaceId,
   });
 
-  const projectOptions = projects?.documents.map((project) => ({
+  const projectOptions = projects?.documents.map(project => ({
     id: project.$id,
     name: project.name,
     imageUrl: project.imageUrl,
   }));
 
-  const memberOptions = members?.documents.map((project) => ({
+  const memberOptions = members?.documents.map(project => ({
     id: project.$id,
     name: project.name,
   }));
-
+  console.log('memberOptions', memberOptions);
   const isLoading = isLoadingProjects || isLoadingMembers;
 
   if (isLoading) {

@@ -23,7 +23,7 @@ export const useCreateComment = () => {
     },
 
     onSuccess: () => {
-      toast.success('Task created!');
+      toast.success('Comment created!');
       queryClient.invalidateQueries({ queryKey: ['task-comment'] });
     },
     onError: () => {

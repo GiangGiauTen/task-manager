@@ -100,7 +100,7 @@ export const TaskComment = ({ task }: TaskCommentProps) => {
       });
 
       setNewComment('');
-      toast.success('Comment added successfully');
+
       refetch();
     } catch {
       toast.error('Failed to add comment');
