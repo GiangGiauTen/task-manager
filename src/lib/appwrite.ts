@@ -11,6 +11,7 @@ import { cookies } from 'next/headers';
 import { AUTH_COOKIE } from '@/features/auth/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { DATABASE_ID, TASKS_ID, MEMBERS_ID } from '@/config';
+import cron from 'node-cron';
 export async function createSessionClient() {
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -59,13 +60,32 @@ export async function createAdminClient() {
 export async function notifyTasksDueSoon() {
   const { messaging, databases } = await createAdminClient();
 
-  const oneDayFromNow = new Date();
-  oneDayFromNow.setDate(oneDayFromNow.getDate() + 1);
+  const now = new Date();
+  const startOfTomorrow = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+    0,
+    0,
+    0,
+    0,
+  );
+  const endOfTomorrow = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+    23,
+    59,
+    59,
+    999,
+  );
 
+  // Lấy các task có dueDate là ngày mai
   const tasksDueSoon = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
-    Query.lessThan('dueDate', oneDayFromNow.toISOString()),
+    Query.greaterThanEqual('dueDate', startOfTomorrow.toISOString()),
+    Query.lessThanEqual('dueDate', endOfTomorrow.toISOString()),
   ]);
-
+  // console.log('tasksDueSoon', tasksDueSoon);
   const allMembers = await databases.listDocuments(DATABASE_ID, MEMBERS_ID, []);
 
   const memberMap = allMembers.documents.reduce((map, member) => {
@@ -82,15 +102,15 @@ export async function notifyTasksDueSoon() {
     const scheduledAt = new Date(dueDate);
     scheduledAt.setDate(dueDate.getDate() - 1); // Lùi lại 1 ngày
     scheduledAt.setHours(16, 0, 0, 0); // Đặt giờ thành 16:00:00
-
+    console.log('userId', userId);
     // Nếu thời gian hiện tại đã vượt qua thời gian gửi email, bỏ qua task này
-    const now = new Date();
-    if (scheduledAt <= now) {
-      console.warn(
-        `Thời gian gửi email (${scheduledAt.toISOString()}) đã qua cho task: ${taskName}`,
-      );
-      continue;
-    }
+    // const now = new Date();
+    // if (scheduledAt <= now) {
+    //   console.warn(
+    //     `Thời gian gửi email (${scheduledAt.toISOString()}) đã qua cho task: ${taskName}`,
+    //   );
+    //   continue;
+    // }
 
     await messaging.createEmail(
       messageId,
@@ -104,8 +124,19 @@ export async function notifyTasksDueSoon() {
       [],
       false,
       true,
-      scheduledAt.toISOString(),
+      null,
     );
   }
 }
 // notifyTasksDueSoon();
+
+// Lập lịch chạy hàng ngày lúc 16:00
+cron.schedule('0 2 * * *', async () => {
+  console.log('Running notifyTasksDueSoon...');
+  try {
+    await notifyTasksDueSoon();
+    console.log('Email notifications sent successfully!');
+  } catch (error) {
+    console.error('Failed to send notifications:', error);
+  }
+});
