@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PencilIcon, XIcon, MessageCircleIcon } from 'lucide-react';
+import { PencilIcon, XIcon } from 'lucide-react';
 
 import { Task } from '../types';
 import { Button } from '@/components/ui/button';

@@ -91,7 +91,7 @@ const app = new Hono()
       if (!member) {
         return c.json({ error: 'Unauthorized' }, 401);
       }
-
+      console.log('get siuuuuuuuuuuu');
       const projects = await databases.listDocuments<Project>(
         DATABASE_ID,
         PROJECTS_ID,

@@ -7,6 +7,7 @@ import members from '@/features/members/server/route';
 import projects from '@/features/projects/server/route';
 import tasks from '@/features/tasks/server/route';
 import task_comment from '@/features/task_comment/server/route';
+import notes from '@/features/notes/server/route';
 const app = new Hono().basePath('/api');
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const routes = app
@@ -15,8 +16,8 @@ const routes = app
   .route('/members', members)
   .route('/projects', projects)
   .route('/tasks', tasks)
-  .route('/task_comment', task_comment);
-
+  .route('/task_comment', task_comment)
+  .route('/notes', notes);
 // console.log('routes', routes);
 export const GET = handle(app);
 export const POST = handle(app);

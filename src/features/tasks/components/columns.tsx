@@ -1,25 +1,24 @@
-"use client";
+'use client';
 
-import { ColumnDef } from "@tanstack/react-table";
-import { Task } from "../types";
-import { ArrowUpDown, MoreVertical } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ProjectAvatar } from "@/features/projects/components/project-avatar";
-import { MemberAvatar } from "@/features/members/components/member-avatar";
-import { TaskDate } from "./task-date";
-import { Badge } from "@/components/ui/badge";
-import { snakeCaseToTitleCase } from "@/lib/utils";
-import { TaskActions } from "./task-actions";
+import { ColumnDef } from '@tanstack/react-table';
+import { Task } from '../types';
+import { ArrowUpDown, MoreVertical } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ProjectAvatar } from '@/features/projects/components/project-avatar';
+import { MemberAvatar } from '@/features/members/components/member-avatar';
+import { TaskDate } from './task-date';
+import { Badge } from '@/components/ui/badge';
+import { snakeCaseToTitleCase } from '@/lib/utils';
+import { TaskActions } from './task-actions';
 
 export const columns: ColumnDef<Task>[] = [
   {
-    accessorKey: "name",
+    accessorKey: 'name',
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Task Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
@@ -32,13 +31,12 @@ export const columns: ColumnDef<Task>[] = [
     },
   },
   {
-    accessorKey: "project",
+    accessorKey: 'project',
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Project
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
@@ -47,7 +45,6 @@ export const columns: ColumnDef<Task>[] = [
 
     cell: ({ row }) => {
       const project = row.original.project;
-
       return (
         <div className="flex items-center gap-x-2 text-sm font-medium">
           <ProjectAvatar
@@ -55,19 +52,18 @@ export const columns: ColumnDef<Task>[] = [
             name={project.name}
             image={project.imageUrl}
           />
-          <p className="line-clamp-1">{project.name}</p>{" "}
+          <p className="line-clamp-1">{project.name}</p>{' '}
         </div>
       );
     },
   },
   {
-    accessorKey: "assignee",
+    accessorKey: 'assignee',
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Assignee
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
@@ -84,19 +80,18 @@ export const columns: ColumnDef<Task>[] = [
             fallbackClassname="text-xs"
             name={assignee.name}
           />
-          <p className="line-clamp-1">{assignee.name}</p>{" "}
+          <p className="line-clamp-1">{assignee.name}</p>{' '}
         </div>
       );
     },
   },
   {
-    accessorKey: "dueDate",
+    accessorKey: 'dueDate',
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Due Date
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
@@ -110,13 +105,12 @@ export const columns: ColumnDef<Task>[] = [
     },
   },
   {
-    accessorKey: "status",
+    accessorKey: 'status',
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Status
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
@@ -130,7 +124,7 @@ export const columns: ColumnDef<Task>[] = [
     },
   },
   {
-    id: "actions",
+    id: 'actions',
     cell: ({ row }) => {
       const id = row.original.$id;
       const projectId = row.original.projectId;
