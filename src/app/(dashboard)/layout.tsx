@@ -1,9 +1,11 @@
-import { Navbar } from "@/components/navbar";
-import { Sidebar } from "@/components/sidebar";
-import { CreateWorkspaceModal } from "@/features/workspaces/components/create-workspace-modal";
-import { CreateProjectModal } from "@/features/projects/components/create-project-modal";
-import { CreateTaskModal } from "@/features/tasks/components/create-task-modal";
-import { EditTaskModal } from "@/features/tasks/components/edit-task-modal";
+'use client';
+import { Navbar } from '@/components/navbar';
+import { Sidebar } from '@/components/sidebar';
+import { CreateWorkspaceModal } from '@/features/workspaces/components/create-workspace-modal';
+import { CreateProjectModal } from '@/features/projects/components/create-project-modal';
+import { CreateTaskModal } from '@/features/tasks/components/create-task-modal';
+import { EditTaskModal } from '@/features/tasks/components/edit-task-modal';
+import ChatboxToggle from '@/components/chatbox-toggle';
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
@@ -25,6 +27,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <main className="h-full py-8 px-6 flex flex-col">{children}</main>
           </div>
         </div>
+        <ChatboxToggle />
       </div>
     </div>
   );

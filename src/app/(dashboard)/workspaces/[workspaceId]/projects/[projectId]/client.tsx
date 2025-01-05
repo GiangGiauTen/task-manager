@@ -12,8 +12,7 @@ import { useProjectId } from '@/features/projects/hooks/use-project-id';
 import { TaskViewSwitcher } from '@/features/tasks/components/task-view-switcher';
 import { PencilIcon } from 'lucide-react';
 import Link from 'next/link';
-import Sidebar from '@/features/notes/components/sidebar-notes';
-
+import NoteView from '@/features/notes/components/note-view';
 export const ProjectIdClient = () => {
   const projectId = useProjectId();
   const { data: project, isLoading: isLoadingProject } = useGetProject({
@@ -73,15 +72,6 @@ export const ProjectIdClient = () => {
         </div>
       )}
       {activeView === 'notes' && <NoteView />}
-    </div>
-  );
-};
-const NoteView = () => {
-  return (
-    <div className="p-4">
-      <Sidebar />
-      <h2 className="text-xl font-semibold">Notes</h2>
-      <p>Here you can add or view notes related to the project.</p>
     </div>
   );
 };

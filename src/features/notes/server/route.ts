@@ -9,6 +9,61 @@ import { z } from 'zod';
 import { createAdminClient } from '@/lib/appwrite';
 import { Note } from '@/features/notes/types';
 const app = new Hono()
+  .get('/:noteId', sessionMiddleware, async c => {
+    const currentUser = c.get('user');
+    const databases = c.get('databases');
+    const { users } = await createAdminClient();
+    const { noteId } = c.req.param();
+
+    // Lấy ghi chú từ cơ sở dữ liệu
+    const note = await databases.getDocument<Note>(
+      DATABASE_ID,
+      NOTES_ID,
+      noteId,
+    );
+
+    // Kiểm tra quyền truy cập của người dùng
+    const currentMember = await getMember({
+      databases,
+      workspaceId: note.workspaceId,
+      userId: currentUser.$id,
+    });
+
+    if (!currentMember) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    // Lấy thông tin workspace liên quan đến note
+    const workspace = await databases.getDocument(
+      DATABASE_ID,
+      WORKSPACES_ID,
+      note.workspaceId,
+    );
+
+    // Lấy thông tin người dùng từ bảng members
+    const member = await databases.getDocument(
+      DATABASE_ID,
+      MEMBERS_ID,
+      note.userId,
+    );
+
+    // Lấy thông tin từ bảng users
+    const user = await users.get(member.userId);
+
+    const creator = {
+      ...member,
+      name: user.name || user.email,
+      email: user.email,
+    };
+
+    return c.json({
+      data: {
+        ...note,
+        workspace,
+        creator,
+      },
+    });
+  })
   .get(
     '/sidebarParent',
     sessionMiddleware,
@@ -59,7 +114,6 @@ const app = new Hono()
       }
     },
   )
-
   .post(
     '/',
     sessionMiddleware,
@@ -178,61 +232,7 @@ const app = new Hono()
   )
 
   // Get a specific note by ID
-  .get('/:noteId', sessionMiddleware, async c => {
-    const currentUser = c.get('user');
-    const databases = c.get('databases');
-    const { users } = await createAdminClient();
-    const { noteId } = c.req.param();
 
-    // Lấy ghi chú từ cơ sở dữ liệu
-    const note = await databases.getDocument<Note>(
-      DATABASE_ID,
-      NOTES_ID,
-      noteId,
-    );
-
-    // Kiểm tra quyền truy cập của người dùng
-    const currentMember = await getMember({
-      databases,
-      workspaceId: note.workspaceId,
-      userId: currentUser.$id,
-    });
-
-    if (!currentMember) {
-      return c.json({ error: 'Unauthorized' }, 401);
-    }
-
-    // Lấy thông tin workspace liên quan đến note
-    const workspace = await databases.getDocument(
-      DATABASE_ID,
-      WORKSPACES_ID,
-      note.workspaceId,
-    );
-
-    // Lấy thông tin người dùng từ bảng members
-    const member = await databases.getDocument(
-      DATABASE_ID,
-      MEMBERS_ID,
-      note.userId,
-    );
-
-    // Lấy thông tin từ bảng users
-    const user = await users.get(member.userId);
-
-    const creator = {
-      ...member,
-      name: user.name || user.email,
-      email: user.email,
-    };
-
-    return c.json({
-      data: {
-        ...note,
-        workspace,
-        creator,
-      },
-    });
-  })
   // Update a note
   .patch(
     '/:noteId',

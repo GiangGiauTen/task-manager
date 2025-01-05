@@ -9,7 +9,8 @@ import { TaskBreadcrumbs } from '@/features/tasks/components/task-breadcrumbs';
 import { TaskDescription } from '@/features/tasks/components/task-description';
 import { TaskOverview } from '@/features/tasks/components/task-overview';
 import { useTaskId } from '@/features/tasks/hooks/use-task-id';
-
+import { GeminiAIInteraction } from '@/features/tasks/components/gemini-ai-interaction';
+import { TaskAIEditor } from '@/features/tasks/components/task-ai-editor';
 export const TaskIdClient = () => {
   const taskId = useTaskId();
   const { data, isLoading } = useGetTask({ taskId });
@@ -21,7 +22,13 @@ export const TaskIdClient = () => {
   if (!data) {
     return <PageError message="Task not found" />;
   }
-
+  const taskContext = `
+    Task Details:
+    - Assignee: ${data.assignee.name || 'N/A'}
+    - Due Date: ${data.dueDate || 'N/A'}
+    - Status: ${data.status || 'N/A'}
+    - Description: ${data.description || 'No description provided.'}
+  `;
   return (
     <div className="flex flex-col">
       <TaskBreadcrumbs project={data.project} task={data} />
@@ -31,6 +38,7 @@ export const TaskIdClient = () => {
         <TaskOverview task={data} />
         <TaskDescription task={data} />
         <TaskComment task={data} />
+        <GeminiAIInteraction context={taskContext} />
       </div>
     </div>
   );
