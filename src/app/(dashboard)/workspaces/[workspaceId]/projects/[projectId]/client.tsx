@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Analytics } from '@/components/analytics';
 import { PageError } from '@/components/page-error';
 import { PageLoader } from '@/components/page-loader';
@@ -12,7 +11,7 @@ import { useProjectId } from '@/features/projects/hooks/use-project-id';
 import { TaskViewSwitcher } from '@/features/tasks/components/task-view-switcher';
 import { PencilIcon } from 'lucide-react';
 import Link from 'next/link';
-import NoteView from '@/features/notes/components/note-view';
+
 export const ProjectIdClient = () => {
   const projectId = useProjectId();
   const { data: project, isLoading: isLoadingProject } = useGetProject({
@@ -20,7 +19,7 @@ export const ProjectIdClient = () => {
   });
   const { data: analytics, isLoading: isLoadingAnalytics } =
     useGetProjectAnalytics({ projectId });
-  const [activeView, setActiveView] = useState<'tasks' | 'notes'>('tasks');
+
   const isLoading = isLoadingProject || isLoadingAnalytics;
 
   if (isLoading) {
@@ -53,25 +52,10 @@ export const ProjectIdClient = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-start gap-x-4 border-b pb-2">
-        <Button
-          variant={activeView === 'tasks' ? 'primary' : 'ghost'}
-          onClick={() => setActiveView('tasks')}>
-          Tasks
-        </Button>
-        <Button
-          variant={activeView === 'notes' ? 'primary' : 'ghost'}
-          onClick={() => setActiveView('notes')}>
-          Notes
-        </Button>
+      <div>
+        {analytics ? <Analytics data={analytics} /> : null}
+        <TaskViewSwitcher hideProjectFilter />
       </div>
-      {activeView === 'tasks' && (
-        <div>
-          {analytics ? <Analytics data={analytics} /> : null}
-          <TaskViewSwitcher hideProjectFilter />
-        </div>
-      )}
-      {activeView === 'notes' && <NoteView />}
     </div>
   );
 };

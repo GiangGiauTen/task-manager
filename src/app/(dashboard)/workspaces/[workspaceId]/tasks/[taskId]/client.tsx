@@ -10,7 +10,7 @@ import { TaskDescription } from '@/features/tasks/components/task-description';
 import { TaskOverview } from '@/features/tasks/components/task-overview';
 import { useTaskId } from '@/features/tasks/hooks/use-task-id';
 import { GeminiAIInteraction } from '@/features/tasks/components/gemini-ai-interaction';
-import { TaskAIEditor } from '@/features/tasks/components/task-ai-editor';
+
 export const TaskIdClient = () => {
   const taskId = useTaskId();
   const { data, isLoading } = useGetTask({ taskId });
