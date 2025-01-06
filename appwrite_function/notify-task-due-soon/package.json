@@ -1,9 +1,0 @@
-{
-  "name": "notify-tasks-due-soon",
-  "version": "1.0.0",
-  "main": "index.js",
-  "dependencies": {
-    "node-appwrite": "14.0.0",
-    "uuid": "^9.0.0"
-  }
-}
